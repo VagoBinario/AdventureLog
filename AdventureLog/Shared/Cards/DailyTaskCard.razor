@@ -2,7 +2,7 @@
 
 @inject Repository repository
 
-<EditForm Model=dailyTask class="col-4">
+<EditForm Model=dailyTask class="col-md-4">
     <div class="card" >
         <div class="card-header">
         @dailyTask.UserTask.Name 
@@ -14,18 +14,27 @@
         </button>
         </div>
         <ul class="list-group list-group-flush">
-        <ListItemWithCheckBox IsCheckValue="@dailyTask.OneComplete" 
-            IsCheckValueChange="@((x) => Update(x,1))"
-            IsCheckValueExpression="@(() => dailyTask.OneComplete)"
-            LabelText="@dailyTask.UserTask.LevelOne" />
-        <ListItemWithCheckBox IsCheckValue="@dailyTask.TwoComplete" 
-            IsCheckValueChange="@((x) => Update(x,2))"
-            IsCheckValueExpression="@(() => dailyTask.TwoComplete)"
-            LabelText="@dailyTask.UserTask.LevelTwo" />
-        <ListItemWithCheckBox IsCheckValue="@dailyTask.ThreeComplete" 
-            IsCheckValueChange="@((x) => Update(x,3))"
-            IsCheckValueExpression="@(() => dailyTask.ThreeComplete)"
-            LabelText="@dailyTask.UserTask.LevelThree" />
+            @if (!string.IsNullOrEmpty(dailyTask.UserTask.LevelOne))
+            {
+               <ListItemWithCheckBox IsCheckValue="@dailyTask.OneComplete" 
+                IsCheckValueChange="@((x) => Update(x,1))"
+                IsCheckValueExpression="@(() => dailyTask.OneComplete)"
+                LabelText="@dailyTask.UserTask.LevelOne" />   
+            }
+            @if (!string.IsNullOrEmpty(dailyTask.UserTask.LevelTwo))
+            {
+                <ListItemWithCheckBox IsCheckValue="@dailyTask.TwoComplete" 
+                IsCheckValueChange="@((x) => Update(x,2))"
+                IsCheckValueExpression="@(() => dailyTask.TwoComplete)"
+                LabelText="@dailyTask.UserTask.LevelTwo" />   
+            }
+            @if (!string.IsNullOrEmpty(dailyTask.UserTask.LevelThree))
+            {
+                <ListItemWithCheckBox IsCheckValue="@dailyTask.ThreeComplete" 
+                IsCheckValueChange="@((x) => Update(x,3))"
+                IsCheckValueExpression="@(() => dailyTask.ThreeComplete)"
+                LabelText="@dailyTask.UserTask.LevelThree" />    
+            }
         </ul>
         <div class="card-footer">
             <button type="button" class="btn btn-primary" onclick="@(() => EndDailyTaks())">End Task</button> 

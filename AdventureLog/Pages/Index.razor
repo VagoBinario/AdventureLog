@@ -15,7 +15,7 @@
 </div>
 Avialable Points = @totalAvilablePoints;
 <div class="row">
-    <div class="col-6">
+    <div class="col-md-6">
         <CollectionLayout TItem=Reward Collection=@rewards>
             <ItemInCollection>
                 <CollectableReward Reward=@context RedeemRewardCallback="@((x) => RedeemRewardCallback(x))" @bind-CurrentPoints="totalAvilablePoints" />
