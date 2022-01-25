@@ -1,0 +1,39 @@
+﻿@page "/CompletedTaskHistory"
+
+@inject Repository repository
+
+@using AdventureLog.Data
+
+<table class="table table-striped table-sm table-responsive">
+  <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Remaining Points</th>
+    </tr>
+  </thead>
+  <tbody>
+    @if (completedTaskHistoryTables == null)
+    {
+        <tr><td colspan="3">Loading...</td></tr>
+    }
+    else
+    {
+        @foreach (CompletedTaskHistory item in completedTaskHistoryTables)
+        {
+            <tr>
+                <td scope="col">@item.CompletedTime</td>
+                <td scope="col">@item.RemainingPoints</td>
+            </tr>
+        }
+    }
+  </tbody>
+</table>
+
+@code {
+    IEnumerable<CompletedTaskHistory> completedTaskHistoryTables;
+
+    protected override void OnInitialized()
+    {
+        completedTaskHistoryTables = repository.GetCompletedTaskHistories();
+    }
+}

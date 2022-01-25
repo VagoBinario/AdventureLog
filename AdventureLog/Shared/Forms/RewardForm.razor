@@ -1,0 +1,10 @@
+﻿@using Data
+
+<label for="NameInput">Name:</label>
+<InputText @bind-Value=Reward.Name id="NameInput" class="form-control" placeholder="Enter name"/>
+<InputCheckbox @bind-Value="Reward.IsRepetable" id="RepetableCheckbox" class="form-check-input" />
+<label class="form-check-label" for="RepetableCheckbox">Repetable?</label>
+
+@code {
+    [Parameter] public Reward Reward { get; set; }
+}

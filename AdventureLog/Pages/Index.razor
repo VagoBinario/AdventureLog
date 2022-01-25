@@ -1,0 +1,92 @@
+﻿@page "/"
+@using AdventureLog.Shared.Cards
+@using AdventureLog.Data
+
+@inject Repository repository
+
+<h1>Tasks</h1>
+
+<div class="row">
+    <CollectionLayout TItem=DailyTask Collection=@dailyTasks >
+        <ItemInCollection>
+            <DailyTaskCard dailyTask=@context EndTaskEvent="@((x) => UpdateOnTaskEnd(x))" ReloadDailyTask="@((x) => ReloadRandomTask(x))"/>
+        </ItemInCollection>
+    </CollectionLayout>
+</div>
+Avialable Points = @totalAvilablePoints;
+<div class="row">
+    <div class="col-6">
+        <CollectionLayout TItem=Reward Collection=@rewards>
+            <ItemInCollection>
+                <CollectableReward Reward=@context RedeemRewardCallback="@((x) => RedeemRewardCallback(x))" @bind-CurrentPoints="totalAvilablePoints" />
+            </ItemInCollection>
+        </CollectionLayout>
+    </div>
+</div>
+
+@code {
+    List<DailyTask> dailyTasks;
+    IEnumerable<int> UserTasksId => dailyTasks.Select(x => x.UserTaskId);
+    ICollection<Reward> rewards;
+    IEnumerable<CompletedTaskHistory> completedTaskHistories;
+    int totalAvilablePoints;
+
+    protected override void OnInitialized()
+    {
+        dailyTasks = repository.GetAllActiveDailyTasks(true);
+        while(dailyTasks.Count < 3)
+        {
+            var task = repository.GetRandomTask(UserTasksId);
+            if (task == null) break;
+            dailyTasks.Add(task);
+        }
+        rewards = repository.GetAllRewards();
+        completedTaskHistories = repository.GetCompletedTaskHistories();
+        totalAvilablePoints = completedTaskHistories.Sum(x => x.RemainingPoints);
+    }
+
+    void RedeemRewardCallback(Reward reward)
+    {
+        if (!reward.IsRepetable){
+            rewards.Remove(reward);
+            repository.Delete(reward);
+        }
+        int pointToPay = reward.Cost;
+        foreach (var task in completedTaskHistories.Where(x => x.RemainingPoints > 0))
+        {
+            if(task.RemainingPoints >= pointToPay)
+            {
+                task.RemainingPoints -= pointToPay;
+                repository.Update(task);
+                break;
+            }
+            else
+            {
+                pointToPay -= task.RemainingPoints;
+                task.RemainingPoints = 0;
+                repository.Update(task);
+            }
+        }
+    }
+
+    void GetRandomTask()
+    {
+        var tasks = repository.GetRandomTasks();
+        dailyTasks.AddRange(tasks);
+    }
+
+    void ReloadRandomTask(DailyTask dailyTask)
+    {
+        dailyTasks.Remove(dailyTask);
+        repository.Delete(dailyTask);
+        dailyTasks.Add(repository.GetRandomTask(UserTasksId));
+    }
+
+    void UpdateOnTaskEnd(DailyTask dailyTask)
+    {
+        dailyTasks.Remove(dailyTask);
+        dailyTasks.Add(repository.GetRandomTask(UserTasksId));
+        totalAvilablePoints += dailyTask.TotalGainPoints();
+    }
+
+}

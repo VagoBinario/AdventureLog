@@ -1,0 +1,70 @@
+﻿@using AdventureLog.Data
+
+@inject Repository repository
+
+<EditForm Model=dailyTask class="col-4">
+    <div class="card" >
+        <div class="card-header">
+        @dailyTask.UserTask.Name 
+        <button type="button" class="btn btn-outline-primary btn-sm" @onclick="RefreshTask">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+              <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+            </svg>
+        </button>
+        </div>
+        <ul class="list-group list-group-flush">
+        <ListItemWithCheckBox IsCheckValue="@dailyTask.OneComplete" 
+            IsCheckValueChange="@((x) => Update(x,1))"
+            IsCheckValueExpression="@(() => dailyTask.OneComplete)"
+            LabelText="@dailyTask.UserTask.LevelOne" />
+        <ListItemWithCheckBox IsCheckValue="@dailyTask.TwoComplete" 
+            IsCheckValueChange="@((x) => Update(x,2))"
+            IsCheckValueExpression="@(() => dailyTask.TwoComplete)"
+            LabelText="@dailyTask.UserTask.LevelTwo" />
+        <ListItemWithCheckBox IsCheckValue="@dailyTask.ThreeComplete" 
+            IsCheckValueChange="@((x) => Update(x,3))"
+            IsCheckValueExpression="@(() => dailyTask.ThreeComplete)"
+            LabelText="@dailyTask.UserTask.LevelThree" />
+        </ul>
+        <div class="card-footer">
+            <button type="button" class="btn btn-primary" onclick="@(() => EndDailyTaks())">End Task</button> 
+        </div>
+    </div>
+</EditForm>
+
+
+
+@code {
+    [Parameter] public DailyTask dailyTask { get; set; }
+    [Parameter] public EventCallback<DailyTask> EndTaskEvent { get; set; }
+    [Parameter] public EventCallback<DailyTask> ReloadDailyTask { get; set; }
+
+    void Update(bool value, int CompleteLevel)
+    {
+        if (CompleteLevel == 1) dailyTask.OneComplete = value;
+        if (CompleteLevel == 2) dailyTask.TwoComplete = value;
+        if (CompleteLevel == 3) dailyTask.ThreeComplete = value;
+        repository.Update(dailyTask);
+    }
+
+    void RefreshTask()
+    {
+        ReloadDailyTask.InvokeAsync(dailyTask);
+    }
+
+    void EndDailyTaks()
+    {
+        dailyTask.IsComplete = true;
+        repository.Update(dailyTask);
+        CompletedTaskHistory completedTaskHistory =
+            new() {
+                    DailyTaskId = dailyTask.Id,
+                    DailyTask = dailyTask,
+                    CompletedTime = DateTime.Now,
+                    RemainingPoints = dailyTask.TotalGainPoints()
+            };
+        repository.Create(completedTaskHistory);
+        EndTaskEvent.InvokeAsync(dailyTask);
+    }
+}

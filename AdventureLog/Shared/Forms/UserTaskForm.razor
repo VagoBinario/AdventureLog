@@ -1,0 +1,14 @@
+﻿@using Data
+    
+<label for="NameInput">Name:</label>
+<InputText @bind-Value=UserTask.Name id="NameInput" class="form-control" placeholder="Enter name"/>
+<label for="LevelOneInput">Level One:</label>
+<InputText @bind-Value=UserTask.LevelOne id="LevelOneInput" class="form-control" placeholder="Enter name" />
+<label for="LevelTwoInput">Level Two:</label>
+<InputText @bind-Value=UserTask.LevelTwo id="LevelTwoInput" class="form-control" placeholder="Enter name" />
+<label for="LevelThreeInput">Level Three:</label>
+<InputText @bind-Value=UserTask.LevelThree id="LevelThreeInput" class="form-control" placeholder="Enter name" />
+
+@code {
+    [Parameter] public UserTask UserTask { get; set; }
+}

@@ -1,0 +1,35 @@
+﻿@using Data
+
+<div class="row">
+    <div class="col-4">@Reward.Name</div>
+    <div class="col-4">(Cost: @Reward.Cost)</div>
+    <div class="col-4">
+        @if (CanBeUnlock())
+        {
+            <button type="button" class="btn btn-outline-success" @onclick="RedeemReward" >Unlock</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-outline-danger" >Missing Points</button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public Reward Reward { get; set; }
+    [Parameter] public int CurrentPoints { get; set; }
+    [Parameter] public EventCallback<int> CurrentPointsChanged { get; set; }
+    [Parameter] public EventCallback<Reward> RedeemRewardCallback { get; set; }
+
+    bool CanBeUnlock()
+    {
+        return CurrentPoints >= Reward.Cost;
+    }
+
+    void RedeemReward()
+    {
+        CurrentPoints -= Reward.Cost;
+        RedeemRewardCallback.InvokeAsync(Reward);
+        CurrentPointsChanged.InvokeAsync(CurrentPoints);
+    }
+}

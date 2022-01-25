@@ -1,0 +1,30 @@
+﻿@using Data
+
+@typeparam TItem where TItem : DbObject
+
+<h1>@Title</h1>
+
+<button @onclick="Add">Add task</button>
+
+<CollectionLayout Collection=@Collection TItem=TItem>
+    <ItemInCollection> 
+        <FormBase Model=@context OnModelDelete="ModelDeleteCallback">
+            <FormInputData>
+                @ModelEditTemplate(@context)
+            </FormInputData>
+        </FormBase>
+    </ItemInCollection>
+</CollectionLayout>
+
+@code{
+    [Parameter] public ICollection<TItem> Collection { get; set; }
+    [Parameter] public RenderFragment Title { get; set; }
+    [Parameter] public RenderFragment<TItem> ModelEditTemplate { get; set; }
+    [Parameter] public IDbObjectFactory<TItem> dbObjectFactory { get; set; }
+    [Parameter] public EventCallback<DbObject> ModelDeleteCallback{ get; set; }
+
+    void Add()
+    {
+        Collection.Add(dbObjectFactory.NewInstance());
+    }
+}

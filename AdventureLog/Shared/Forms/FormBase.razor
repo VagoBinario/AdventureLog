@@ -1,0 +1,48 @@
+﻿@using Data
+
+@inject Repository repository
+    
+<EditForm Model=@Model class="col-4" OnSubmit=FormSubmitted>
+    <div class="form">
+        <div class="row">
+            @FormInputData
+        </div>
+        <input type="submit" value="@submitButtonName" class="btn btn-primary"/>
+        <button type="button" class="btn btn-danger" @onclick="Delete" >Delete</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public DbObject Model { get; set; }
+    [Parameter] public EventCallback<DbObject> OnModelDelete { get; set; }
+    [Parameter] public RenderFragment FormInputData { get; set; }
+
+    bool isNew { get; set; }
+
+    string submitButtonName => isNew ? "Create" : "Update";
+
+    protected override void OnParametersSet()
+    {
+        isNew = Model.Id == 0;
+    }
+
+    void FormSubmitted()
+    {
+        if (isNew)
+        {
+            repository.Create(Model);
+            isNew = false;
+        }
+        else
+        {
+            repository.Update(Model);
+        }
+    }
+
+    async void Delete()
+    {
+        repository.Delete(Model);
+        await OnModelDelete.InvokeAsync(Model);
+    }
+}
+

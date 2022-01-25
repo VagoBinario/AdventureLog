@@ -1,0 +1,18 @@
+﻿@using System.Linq.Expressions
+ <li class="list-group-item">
+    <div class="form-check">
+        <InputCheckbox Value="@IsCheckValue" ValueChanged="@IsCheckValueChange" ValueExpression="@IsCheckValueExpression" class="form-check-input" />
+        <label class="form-check-label"> @LabelText </label>
+    </div>
+</li>
+
+@code {
+    [Parameter]
+    public virtual bool IsCheckValue { get; set; }
+    [Parameter]
+    public EventCallback<bool> IsCheckValueChange{ get; set; }
+    [Parameter]
+    public Expression<Func<bool>> IsCheckValueExpression { get; set; }
+    [Parameter]
+    public string LabelText { get; set; }
+}

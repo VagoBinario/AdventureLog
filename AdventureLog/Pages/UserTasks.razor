@@ -1,0 +1,28 @@
+﻿@page "/UserTasks"
+@using AdventureLog.Data
+@using AdventureLog.Data.Factories
+@using AdventureLog.Shared.Forms
+
+@inject Repository repository
+@inject UserTaskFactory userTaskFactory
+
+<CrudLayout TItem=UserTask Collection=@userTasks dbObjectFactory=@userTaskFactory ModelDeleteCallback="UserTaskDelete">
+    <Title> Tasks </Title>
+    <ModelEditTemplate>
+        <UserTaskForm UserTask=@context />
+    </ModelEditTemplate>
+</CrudLayout>
+
+@code {
+    ICollection<UserTask> userTasks;
+
+    protected override void OnInitialized()
+    {
+        userTasks = repository.GetAllUserTasks();
+    }
+
+    void UserTaskDelete()
+    {
+        userTasks = repository.GetAllUserTasks();
+    }
+}
