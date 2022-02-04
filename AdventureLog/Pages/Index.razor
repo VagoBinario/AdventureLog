@@ -4,6 +4,12 @@
 
 @inject Repository repository
 
+<CollectionLayout TItem=Quest Collection="@quests">
+    <ItemInCollection>
+        <QuestCard quest=@context questTasks=@GetQuestTasks(@context) />
+    </ItemInCollection>
+</CollectionLayout>
+
 <h1>Tasks</h1>
 
 <div class="row">
@@ -25,14 +31,19 @@ Avialable Points = @totalAvilablePoints;
 </div>
 
 @code {
+    ICollection<Quest> quests;
     List<DailyTask> dailyTasks;
     IEnumerable<int> UserTasksId => dailyTasks.Select(x => x.UserTaskId);
     ICollection<Reward> rewards;
     IEnumerable<CompletedTaskHistory> completedTaskHistories;
     int totalAvilablePoints;
 
+    ICollection<QuestTask> GetQuestTasks(Quest quest) => repository.GetAll<QuestTask>(x => x.QuestId == quest.Id).ToList();
+
+
     protected override void OnInitialized()
     {
+        quests = repository.GetAll<Quest>(x => x.IsActive).ToList();
         dailyTasks = repository.GetAllActiveDailyTasks(true);
         while(dailyTasks.Count < 3)
         {

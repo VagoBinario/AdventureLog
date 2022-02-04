@@ -1,0 +1,12 @@
+﻿@using AdventureLog.Data
+
+<LabelAndInputText @bind-InputValue="Quest.Name"
+    LabelName=@nameof(Quest.Name) />
+<LabelWithCheckbox @bind-IsCheckValue="Quest.IsActive"
+    LabelText=@nameof(Quest.IsActive) />
+<LabelAndInputNumber @bind-InputValue="Quest.CompletePoints"
+    LabelName=@nameof(Quest.CompletePoints) />
+
+@code {
+    [Parameter] public Quest Quest { get; set; }
+}

@@ -7,7 +7,6 @@ namespace AdventureLog.Data
         public string Name { get; set; } 
         public string LevelOne { get; set; }
         public string LevelTwo { get; set; }
-        public string LevelThree { get; set; }  
-
+        public string LevelThree { get; set; }
     }
 }

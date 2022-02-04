@@ -1,0 +1,68 @@
+﻿@using AdventureLog.Data
+
+@inject Repository repository
+
+<EditForm Model=quest>
+    <CollapsableCard>
+        <CardHeader>
+            <h3>@quest.Name <b>(@completedQuestTasks / @questTasks.Count())</b> </h3>
+        </CardHeader>
+        <CardBody>
+            <ul class="list-group list-group-flush">
+                @foreach (var questTask in questTasks)
+                {
+                    <ListItemWithCheckBox IsCheckValue="questTask.IsCompleted"
+                                      IsCheckValueChanged=@((x) => CheckValueInQuestTaskChange(questTask, x))
+                                      IsCheckValueExpression=@(() => questTask.IsCompleted)
+                                      LabelText="@($"{questTask.Name} ({questTask.PointsReward})")" />
+                }
+            </ul>
+        </CardBody>
+        <CardFooter>
+            <button type="button" class="btn btn-success" @onclick="CompleteQuestTask">Complete</button>
+            <button type="button" class="btn btn-danger" @onclick="CancelQuestTask">Cancel</button>
+            <button type="button" class="btn btn-warning" @onclick="RestartQuestTasks">Restart</button>
+        </CardFooter>
+    </CollapsableCard>
+</EditForm>
+
+@code {
+    [Parameter] public Quest quest { get; set; }
+    [Parameter] public ICollection<QuestTask> questTasks { get; set; }
+
+    private int completedQuestTasks = 0;
+
+    protected override void OnInitialized()
+    {
+        completedQuestTasks = questTasks.Count(x => x.IsCompleted);
+    }
+
+    void CheckValueInQuestTaskChange(QuestTask questTask, bool IsComplete)
+    {
+        questTask.IsCompleted = IsComplete;
+        completedQuestTasks = questTasks.Count(x => x.IsCompleted);
+        repository.Update(questTask);
+    }
+
+    void CompleteQuestTask()
+    {
+        CancelQuestTask();
+    }
+
+    void CancelQuestTask()
+    {
+        RestartQuestTasks();
+        quest.IsActive = false;
+        repository.Update(quest);
+    }
+
+    void RestartQuestTasks()
+    {
+        foreach (QuestTask questTask in questTasks)
+        {
+            if (!questTask.IsCompleted) continue;
+            questTask.IsCompleted = false;
+            repository.Update(questTask);
+        }
+    }
+}

@@ -1,6 +1,6 @@
 ﻿@using Data
 
-@typeparam TItem where TItem : DbObject
+@typeparam TItem where TItem : DbObject, new ()
 
 <h1>@Title</h1>
 
@@ -8,7 +8,7 @@
 
 <CollectionLayout Collection=@Collection TItem=TItem>
     <ItemInCollection> 
-        <FormBase Model=@context OnModelDelete="ModelDeleteCallback">
+        <FormBase TItem=TItem Model=@context OnModelDelete="(x) => OnDelete(x)" >
             <FormInputData>
                 @ModelEditTemplate(@context)
             </FormInputData>
@@ -21,10 +21,15 @@
     [Parameter] public RenderFragment Title { get; set; }
     [Parameter] public RenderFragment<TItem> ModelEditTemplate { get; set; }
     [Parameter] public IDbObjectFactory<TItem> dbObjectFactory { get; set; }
-    [Parameter] public EventCallback<DbObject> ModelDeleteCallback{ get; set; }
+    [Parameter] public EventCallback<TItem> ModelDeleteCallback{ get; set; }
 
     void Add()
     {
         Collection.Add(dbObjectFactory.NewInstance());
+    }
+
+    void OnDelete(TItem entity)
+    {
+        ModelDeleteCallback.InvokeAsync(entity);
     }
 }

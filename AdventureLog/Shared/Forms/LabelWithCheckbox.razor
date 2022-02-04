@@ -1,10 +1,7 @@
 ﻿@using System.Linq.Expressions
- <li class="list-group-item">
-    <div class="form-check">
-        <InputCheckbox Value="IsCheckValue" ValueChanged=IsCheckValueChanged ValueExpression=IsCheckValueExpression class="form-check-input" />
-        <label class="form-check-label"> @LabelText </label>
-    </div>
-</li>
+
+<InputCheckbox Value="IsCheckValue" ValueChanged=IsCheckValueChanged ValueExpression=IsCheckValueExpression class="form-check-input" />
+<label class="form-check-label"> @LabelText </label>
 
 @code {
     [Parameter] public bool IsCheckValue { get; set; }

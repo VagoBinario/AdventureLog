@@ -35,6 +35,19 @@ namespace AdventureLog.Data
                 };
                 rewards.ForEach(x => _database.Insert(x));
             }
+            if (!_database.Table<Quest>().Any())
+            {
+                Quest quest = new() { Name = "Test Quest"};
+                _database.Insert(quest);
+                List<QuestTask> questTasks = new()
+                {
+                    new() { Name = "Test task 1", QuestId = quest.Id },
+                    new() { Name = "Test task 2", QuestId = quest.Id },
+                    new() { Name = "Test task 3", QuestId = quest.Id },
+                    new() { Name = "Test task 4", QuestId = quest.Id },
+                };
+                questTasks.ForEach(x => _database.Insert(x));
+            }
         }
 
         public Repository()
@@ -45,6 +58,7 @@ namespace AdventureLog.Data
             _database.CreateTable<Reward>();
             _database.CreateTable<DailyTask>();
             _database.CreateTable<CompletedTaskHistory>();
+            _database.CreateTables<Quest, QuestTask>();
             SeedData();
         }
 
@@ -59,7 +73,6 @@ namespace AdventureLog.Data
         {
             return includeChilds? _database.GetAllWithChildren<CompletedTaskHistory>() : _database.Table<CompletedTaskHistory>();
         }
-
         public DailyTask GetRandomTask(IEnumerable<int> ignoreTasksIds = null)
         {
             if (ignoreTasksIds == null) ignoreTasksIds = Enumerable.Empty<int>();
@@ -94,19 +107,15 @@ namespace AdventureLog.Data
             return dailyTasks;
         }
 
-        public int Create<T>(T entity) where T : DbObject
-        {
-            return _database.Insert(entity);
-        }
+        public IEnumerable<string> GetTableHeaders<T>() => _database.GetTableInfo(typeof(T).Name).Select(x => x.Name);
 
-        public int Update<T>(T entity) where T : DbObject
-        {
-            return _database.Update(entity);
-        }
+        public IEnumerable<T> GetAll<T>() where T : DbObject, new() => _database.Table<T>();
+        public IEnumerable<T> GetAll<T>(Func<T,bool> filter) where T : DbObject, new() => _database.Table<T>().Where(filter);
 
-        public int Delete<T>(T entity) where T : DbObject
-        {
-            return _database.Delete(entity);
-        }
+        public int Create<T>(T entity) where T : DbObject => _database.Insert(entity);
+
+        public int Update<T>(T entity) where T : DbObject => _database.Update(entity);
+
+        public int Delete<T>(T entity) where T : DbObject => _database.Delete(entity);
     }
 }

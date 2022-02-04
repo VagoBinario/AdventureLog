@@ -1,20 +1,25 @@
 ﻿@using Data
 
+@typeparam TItem where TItem : DbObject, new()
 @inject Repository repository
-    
+
 <EditForm Model=@Model class="col-md-4" OnSubmit=FormSubmitted>
     <div class="form">
         <div class="row">
             @FormInputData
         </div>
-        <input type="submit" value="@submitButtonName" class="btn btn-primary"/>
-        <button type="button" class="btn btn-danger" @onclick="Delete" >Delete</button>
+        <input type="submit" value="@submitButtonName" class="btn btn-primary" />
+        @if (Model.Id != 0)
+        {
+            <button type="button" class="btn btn-danger" @onclick="Delete">Delete</button>
+        }
     </div>
 </EditForm>
 
 @code {
-    [Parameter] public DbObject Model { get; set; }
-    [Parameter] public EventCallback<DbObject> OnModelDelete { get; set; }
+    [Parameter] public TItem Model { get; set; }
+    [Parameter] public EventCallback<TItem> OnFormSubmited { get; set; }
+    [Parameter] public EventCallback<TItem> OnModelDelete { get; set; }
     [Parameter] public RenderFragment FormInputData { get; set; }
 
     bool isNew { get; set; }
@@ -37,6 +42,7 @@
         {
             repository.Update(Model);
         }
+        OnFormSubmited.InvokeAsync();
     }
 
     async void Delete()

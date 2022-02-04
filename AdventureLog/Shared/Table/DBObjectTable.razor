@@ -1,0 +1,69 @@
+﻿@using AdventureLog.Data
+@using AdventureLog.Data.Factories
+@typeparam TItem where TItem : DbObject, new()
+
+@inject Repository repository
+@if (showTable)
+{
+    <TableBase TItem=TItem Items=rows>
+        <TableHeader>
+            @foreach (string header in headers)
+            {
+                <th scope="col">@header</th>
+            }
+            <th scope="col">Actions</th>
+        </TableHeader>
+        <RowTemplate>
+            @foreach (string propertyName in headers)
+            {
+                <td>@context.GetPropertyValue(propertyName)</td>
+            }
+            <td>
+                <button type="button" class="btn btn-warning" onclick="@(() => EditItem(context))">Edit</button>
+            </td>
+        </RowTemplate>
+    </TableBase>
+}
+else
+{
+    <FormBase TItem=TItem Model="selectedItem" OnFormSubmited=@((x) => OnSubmit(x)) OnModelDelete=@((x) => OnDelete(x))>
+        <FormInputData>
+            @FormInputData(selectedItem)
+        </FormInputData>
+    </FormBase>
+}
+
+@code {
+
+    [Parameter] public RenderFragment<TItem> FormInputData { get; set; }
+    IEnumerable<string> headers;
+    ICollection<TItem> rows;
+    public TItem selectedItem { get; set; }
+    bool showTable = true;
+
+    protected override void OnInitialized()
+    {
+        headers = repository.GetTableHeaders<TItem>();
+        rows = repository.GetAll<TItem>().ToList();
+        selectedItem = DBObjectFactory<TItem>.Instance();
+    }
+
+    void EditItem(TItem entity)
+    {
+        selectedItem = entity;
+        showTable = false;
+        StateHasChanged();
+    }
+
+    void OnSubmit(TItem item)
+    {
+        showTable = true;
+        StateHasChanged();
+    }
+
+    void OnDelete(TItem entity)
+    {
+        selectedItem = null;
+        repository.Delete(entity);
+    }
+}

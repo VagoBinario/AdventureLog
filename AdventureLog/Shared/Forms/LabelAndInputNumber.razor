@@ -1,0 +1,14 @@
+﻿@using System.Linq.Expressions
+
+<label >@LabelName</label>
+<InputNumber Value=InputValue 
+    ValueChanged="InputValueChanged" 
+    ValueExpression="InputValueExpression"
+    class="form-control" />
+
+@code {
+    [Parameter] public string LabelName { get; set; }
+    [Parameter] public int InputValue { get; set; }
+    [Parameter] public EventCallback<int> InputValueChanged { get; set; }
+    [Parameter] public Expression<Func<int>> InputValueExpression { get; set; }
+}   
