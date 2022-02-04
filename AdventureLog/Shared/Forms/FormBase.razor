@@ -8,10 +8,17 @@
         <div class="row">
             @FormInputData
         </div>
-        <input type="submit" value="@submitButtonName" class="btn btn-primary" />
-        @if (Model.Id != 0)
+        @if(OnFormSubmited.HasDelegate)
+        {
+            <input type="submit" value="@submitButtonName" class="btn btn-primary" />
+        }
+        @if (Model.Id != 0 && OnModelDelete.HasDelegate)
         {
             <button type="button" class="btn btn-danger" @onclick="Delete">Delete</button>
+        }
+        @if(OnModelCancel.HasDelegate)
+        {
+            <button type="button" class="btn btn-danger" @onclick="Cancel">Cancel</button>
         }
     </div>
 </EditForm>
@@ -20,10 +27,11 @@
     [Parameter] public TItem Model { get; set; }
     [Parameter] public EventCallback<TItem> OnFormSubmited { get; set; }
     [Parameter] public EventCallback<TItem> OnModelDelete { get; set; }
+    [Parameter] public EventCallback<TItem> OnModelCancel { get; set; }
     [Parameter] public RenderFragment FormInputData { get; set; }
 
     bool isNew { get; set; }
-
+    
     string submitButtonName => isNew ? "Create" : "Update";
 
     protected override void OnParametersSet()
@@ -49,6 +57,11 @@
     {
         repository.Delete(Model);
         await OnModelDelete.InvokeAsync(Model);
+    }
+
+    void Cancel()
+    {
+        OnModelCancel.InvokeAsync(Model);
     }
 }
 

@@ -112,6 +112,8 @@ namespace AdventureLog.Data
         public IEnumerable<T> GetAll<T>() where T : DbObject, new() => _database.Table<T>();
         public IEnumerable<T> GetAll<T>(Func<T,bool> filter) where T : DbObject, new() => _database.Table<T>().Where(filter);
 
+        public T Get<T>(int id) where T : DbObject, new() => _database.Get<T>(id);
+        
         public int Create<T>(T entity) where T : DbObject => _database.Insert(entity);
 
         public int Update<T>(T entity) where T : DbObject => _database.Update(entity);

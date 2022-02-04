@@ -26,7 +26,7 @@
 }
 else
 {
-    <FormBase TItem=TItem Model="selectedItem" OnFormSubmited=@((x) => OnSubmit(x)) OnModelDelete=@((x) => OnDelete(x))>
+    <FormBase TItem=TItem Model="selectedItem" OnFormSubmited=@((x) => OnSubmit(x)) OnModelCancel=@((x) => OnCancel(x))>
         <FormInputData>
             @FormInputData(selectedItem)
         </FormInputData>
@@ -37,7 +37,7 @@ else
 
     [Parameter] public RenderFragment<TItem> FormInputData { get; set; }
     IEnumerable<string> headers;
-    ICollection<TItem> rows;
+    List<TItem> rows;
     public TItem selectedItem { get; set; }
     bool showTable = true;
 
@@ -57,6 +57,17 @@ else
 
     void OnSubmit(TItem item)
     {
+        selectedItem = null;
+        showTable = true;
+        StateHasChanged();
+    }
+
+    void OnCancel(TItem item)
+    {
+        var newItem = repository.Get<TItem>(item.Id);
+        var index = rows.IndexOf(item);
+        rows[index] = newItem;
+        selectedItem = null;
         showTable = true;
         StateHasChanged();
     }
