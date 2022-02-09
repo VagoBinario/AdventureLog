@@ -1,28 +1,12 @@
 ﻿@page "/rewards"
 @using AdventureLog.Data
-@using AdventureLog.Data.Factories
-@using AdventureLog.Shared.Forms
 
-@inject Repository repository
-@inject RewardFactory rewardFactory
-
-<CrudLayout TItem=Reward Collection=@rewards dbObjectFactory=@rewardFactory ModelDeleteCallback="Delete">
-    <Title> Rewards </Title>
-    <ModelEditTemplate> 
+<DBObjectTable TItem="Reward">
+    <FormInputData>
         <RewardForm Reward=@context />
-    </ModelEditTemplate>
-</CrudLayout>
+    </FormInputData>
+</DBObjectTable>
 
 @code {
-    List<Reward> rewards;
-
-    protected override void OnInitialized()
-    {
-        rewards = repository.GetAllRewards();
-    }
-
-    void Delete()
-    {
-        rewards = repository.GetAllRewards();
-    }
+    
 }

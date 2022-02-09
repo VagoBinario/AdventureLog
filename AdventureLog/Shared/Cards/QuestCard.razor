@@ -5,7 +5,7 @@
 <EditForm Model=quest>
     <CollapsableCard>
         <CardHeader>
-            <h3>@quest.Name <b>(@completedQuestTasks / @questTasks.Count())</b> </h3>
+            <h3>@quest.Name <b>(@completedQuestTasks / @questTasks.Count)</b> </h3>
         </CardHeader>
         <CardBody>
             <ul class="list-group list-group-flush">
@@ -19,7 +19,8 @@
             </ul>
         </CardBody>
         <CardFooter>
-            <button type="button" class="btn btn-success" @onclick="CompleteQuestTask">Complete</button>
+            <DisabableButton Classes="btn btn-success" Text="@($"Complete ({quest.CompletePoints})")" Disabled=@(completedQuestTasks == questTasks.Count) OnClick=CompleteQuestTask />
+            <DisabableButton Classes="btn btn-success" Text="Complete And Restart" Disabled=@(completedQuestTasks == questTasks.Count) OnClick=CompleteAndRestartTask />
             <button type="button" class="btn btn-danger" @onclick="CancelQuestTask">Cancel</button>
             <button type="button" class="btn btn-warning" @onclick="RestartQuestTasks">Restart</button>
         </CardFooter>
@@ -29,6 +30,9 @@
 @code {
     [Parameter] public Quest quest { get; set; }
     [Parameter] public ICollection<QuestTask> questTasks { get; set; }
+    [Parameter] public EventCallback<int> GainPointsCallback { get; set; }
+    [Parameter] public EventCallback OnComplete { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
 
     private int completedQuestTasks = 0;
 
@@ -42,11 +46,23 @@
         questTask.IsCompleted = IsComplete;
         completedQuestTasks = questTasks.Count(x => x.IsCompleted);
         repository.Update(questTask);
+        int gainPoints = IsComplete ? questTask.PointsReward : questTask.PointsReward * -1; 
+        GainPointsCallback.InvokeAsync(gainPoints);
     }
 
     void CompleteQuestTask()
     {
-        CancelQuestTask();
+        RestartQuestTasks();
+        quest.IsActive = false;
+        repository.Update(quest);
+        GainPointsCallback.InvokeAsync(quest.CompletePoints);
+        OnComplete.InvokeAsync();
+    }
+
+    void CompleteAndRestartTask()
+    {
+        RestartQuestTasks();
+        GainPointsCallback.InvokeAsync(quest.CompletePoints);
     }
 
     void CancelQuestTask()
@@ -54,6 +70,7 @@
         RestartQuestTasks();
         quest.IsActive = false;
         repository.Update(quest);
+        OnCancel.InvokeAsync();
     }
 
     void RestartQuestTasks()
@@ -64,5 +81,6 @@
             questTask.IsCompleted = false;
             repository.Update(questTask);
         }
+        completedQuestTasks = 0;
     }
 }

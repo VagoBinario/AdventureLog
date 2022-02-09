@@ -1,0 +1,14 @@
+﻿@using AdventureLog.Data
+
+<LabelAndInputText @bind-InputValue=questTask.Name LabelName=@nameof(questTask.Name) />
+<LabelAndInputNumber @bind-InputValue=questTask.PointsReward LabelName=@nameof(questTask.PointsReward) />
+
+@code {
+    [Parameter] public QuestTask questTask { get; set; }
+    [Parameter] public int QuestId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        questTask.QuestId = QuestId;
+    }
+}

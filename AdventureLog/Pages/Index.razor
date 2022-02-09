@@ -4,29 +4,25 @@
 
 @inject Repository repository
 
-<CollectionLayout TItem=Quest Collection="@quests">
-    <ItemInCollection>
-        <QuestCard quest=@context questTasks=@GetQuestTasks(@context) />
-    </ItemInCollection>
-</CollectionLayout>
-
-<h1>Tasks</h1>
-
-<div class="row">
-    <CollectionLayout TItem=DailyTask Collection=@dailyTasks >
+<h1> Avialable Points = @totalAvilablePoints </h1>
+<div class="container">
+    <CollectionLayout TItem=Quest Collection="@quests">
         <ItemInCollection>
-            <DailyTaskCard dailyTask=@context EndTaskEvent="@((x) => UpdateOnTaskEnd(x))" ReloadDailyTask="@((x) => ReloadRandomTask(x))"/>
+            <QuestCard quest=@context questTasks=@GetQuestTasks(@context)
+                       GainPointsCallback=@((x) => totalAvilablePoints += x)
+                       OnComplete=@(() => quests.Remove(context))
+                       OnCancel=@(() => quests.Remove(context)) />
         </ItemInCollection>
     </CollectionLayout>
-</div>
-Avialable Points = @totalAvilablePoints;
-<div class="row">
-    <div class="col-md-6">
-        <CollectionLayout TItem=Reward Collection=@rewards>
-            <ItemInCollection>
-                <CollectableReward Reward=@context RedeemRewardCallback="@((x) => RedeemRewardCallback(x))" @bind-CurrentPoints="totalAvilablePoints" />
-            </ItemInCollection>
-        </CollectionLayout>
+
+    <div class="row">
+        <div class="col-md-6">
+            <CollectionLayout TItem=Reward Collection=@rewards>
+                <ItemInCollection>
+                    <CollectableReward Reward=@context RedeemRewardCallback="@((x) => RedeemRewardCallback(x))" @bind-CurrentPoints="totalAvilablePoints" />
+                </ItemInCollection>
+            </CollectionLayout>
+        </div>
     </div>
 </div>
 
@@ -45,7 +41,7 @@ Avialable Points = @totalAvilablePoints;
     {
         quests = repository.GetAll<Quest>(x => x.IsActive).ToList();
         dailyTasks = repository.GetAllActiveDailyTasks(true);
-        while(dailyTasks.Count < 3)
+        while (dailyTasks.Count < 3)
         {
             var task = repository.GetRandomTask(UserTasksId);
             if (task == null) break;
@@ -58,14 +54,15 @@ Avialable Points = @totalAvilablePoints;
 
     void RedeemRewardCallback(Reward reward)
     {
-        if (!reward.IsRepetable){
+        if (!reward.IsRepetable)
+        {
             rewards.Remove(reward);
             repository.Delete(reward);
         }
         int pointToPay = reward.Cost;
         foreach (var task in completedTaskHistories.Where(x => x.RemainingPoints > 0))
         {
-            if(task.RemainingPoints >= pointToPay)
+            if (task.RemainingPoints >= pointToPay)
             {
                 task.RemainingPoints -= pointToPay;
                 repository.Update(task);

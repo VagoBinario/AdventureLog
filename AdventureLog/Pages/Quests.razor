@@ -1,0 +1,44 @@
+﻿@page "/quests"
+@using AdventureLog.Data
+
+@if (activeEditingQuestTasks == null)
+{
+    <DBObjectTable TItem=Quest>
+        <FormInputData>
+            <QuestForm Quest=@context />
+        </FormInputData>
+        <ExtraItemActions>
+            <button type="button" class="btn btn-primary" onclick="@(() => updateQuestTask(context))">Tasks</button>
+        </ExtraItemActions>
+    </DBObjectTable>
+}
+else
+{
+    <DBObjectTable TItem=QuestTask Filter=@FilterQuestTasks() >
+        <FormInputData>
+            <QuestTaskForm questTask=@context QuestId=activeEditingQuestTasks.Id/>
+        </FormInputData>
+    </DBObjectTable>
+
+    <button type="button" class="btn btn-warning" @onclick=CloseQuestTask >Close</button>
+}
+
+
+@code {
+    Quest quest = new();
+    Quest activeEditingQuestTasks = null;
+
+    Func<QuestTask, bool> FilterQuestTasks() => (x) => x.QuestId == activeEditingQuestTasks.Id;
+
+    void updateQuestTask(Quest quest)
+    {
+        activeEditingQuestTasks = quest;
+        StateHasChanged();
+    }
+
+    void CloseQuestTask()
+    {
+        activeEditingQuestTasks = null;
+        StateHasChanged();
+    }
+}

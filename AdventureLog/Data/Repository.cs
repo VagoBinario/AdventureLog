@@ -37,7 +37,7 @@ namespace AdventureLog.Data
             }
             if (!_database.Table<Quest>().Any())
             {
-                Quest quest = new() { Name = "Test Quest"};
+                Quest quest = new() { Name = "Test Quest", IsActive=true, CompletePoints=10};
                 _database.Insert(quest);
                 List<QuestTask> questTasks = new()
                 {

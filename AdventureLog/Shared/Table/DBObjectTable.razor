@@ -5,6 +5,7 @@
 @inject Repository repository
 @if (showTable)
 {
+    <button type="button" class="btn btn-primary" onclick="@(() => NewItem())">New</button>
     <TableBase TItem=TItem Items=rows>
         <TableHeader>
             @foreach (string header in headers)
@@ -20,6 +21,11 @@
             }
             <td>
                 <button type="button" class="btn btn-warning" onclick="@(() => EditItem(context))">Edit</button>
+                <button type="button" class="btn btn-danger" onclick="@(() => DeleteItem(context))">Delete</button>
+                @if (ExtraItemActions != null)
+                {
+                    @ExtraItemActions(context)    
+                }
             </td>
         </RowTemplate>
     </TableBase>
@@ -28,7 +34,9 @@ else
 {
     <FormBase TItem=TItem Model="selectedItem" OnFormSubmited=@((x) => OnSubmit(x)) OnModelCancel=@((x) => OnCancel(x))>
         <FormInputData>
-            @FormInputData(selectedItem)
+            @if(FormInputData != null){
+                @FormInputData(selectedItem)
+            }
         </FormInputData>
     </FormBase>
 }
@@ -36,6 +44,8 @@ else
 @code {
 
     [Parameter] public RenderFragment<TItem> FormInputData { get; set; }
+    [Parameter] public RenderFragment<TItem> ExtraItemActions { get; set; }
+    [Parameter] public Func<TItem, bool> Filter { get; set; }
     IEnumerable<string> headers;
     List<TItem> rows;
     public TItem selectedItem { get; set; }
@@ -44,8 +54,36 @@ else
     protected override void OnInitialized()
     {
         headers = repository.GetTableHeaders<TItem>();
-        rows = repository.GetAll<TItem>().ToList();
+        rows = ((Filter is null) ? repository.GetAll<TItem>() : repository.GetAll<TItem>(Filter)).ToList();
         selectedItem = DBObjectFactory<TItem>.Instance();
+    }
+
+    void OnSubmit(TItem item)
+    {
+        if (!rows.Contains(item)) rows.Add(item);
+        selectedItem = null;
+        showTable = true;
+        StateHasChanged();
+    }
+
+    void OnCancel(TItem item)
+    {
+        if(item.Id != 0)
+        {
+            var newItem = repository.Get<TItem>(item.Id);
+            var index = rows.IndexOf(item);
+            rows[index] = newItem;    
+        }
+        selectedItem = null;
+        showTable = true;
+        StateHasChanged();
+    }
+
+    void NewItem()
+    {
+        selectedItem = DBObjectFactory<TItem>.Instance();
+        showTable = false;
+        StateHasChanged();
     }
 
     void EditItem(TItem entity)
@@ -55,26 +93,11 @@ else
         StateHasChanged();
     }
 
-    void OnSubmit(TItem item)
+    void DeleteItem(TItem item)
     {
-        selectedItem = null;
-        showTable = true;
+        //TODO Check for confirm
+        rows.Remove(item);
+        repository.Delete(item);
         StateHasChanged();
-    }
-
-    void OnCancel(TItem item)
-    {
-        var newItem = repository.Get<TItem>(item.Id);
-        var index = rows.IndexOf(item);
-        rows[index] = newItem;
-        selectedItem = null;
-        showTable = true;
-        StateHasChanged();
-    }
-
-    void OnDelete(TItem entity)
-    {
-        selectedItem = null;
-        repository.Delete(entity);
     }
 }
