@@ -3,7 +3,7 @@
 @inject Repository repository
 
 <EditForm Model=quest>
-    <CollapsableCard>
+    <RazorGenericComponents.Cards.CollapsableCard>
         <CardHeader>
             <h3>@quest.Name <b>(@completedQuestTasks / @questTasks.Count)</b> </h3>
         </CardHeader>
@@ -11,7 +11,7 @@
             <ul class="list-group list-group-flush">
                 @foreach (var questTask in questTasks)
                 {
-                    <ListItemWithCheckBox IsCheckValue="questTask.IsCompleted"
+                    <RazorGenericComponents.ListItemWithCheckBox IsCheckValue="questTask.IsCompleted"
                                       IsCheckValueChanged=@((x) => CheckValueInQuestTaskChange(questTask, x))
                                       IsCheckValueExpression=@(() => questTask.IsCompleted)
                                       LabelText="@($"{questTask.Name} ({questTask.PointsReward})")" />
@@ -19,12 +19,12 @@
             </ul>
         </CardBody>
         <CardFooter>
-            <DisabableButton Classes="btn btn-success" Text="@($"Complete ({quest.CompletePoints})")" Disabled=@(completedQuestTasks == questTasks.Count) OnClick=CompleteQuestTask />
-            <DisabableButton Classes="btn btn-success" Text="Complete And Restart" Disabled=@(completedQuestTasks == questTasks.Count) OnClick=CompleteAndRestartTask />
+            <RazorGenericComponents.Buttons.DisabableButton Classes="btn btn-success" Text="@($"Complete ({quest.CompletePoints})")" Disabled=@(completedQuestTasks == questTasks.Count) OnClick=CompleteQuestTask />
+            <RazorGenericComponents.Buttons.DisabableButton Classes="btn btn-success" Text="Complete And Restart" Disabled=@(completedQuestTasks == questTasks.Count) OnClick=CompleteAndRestartTask />
             <button type="button" class="btn btn-danger" @onclick="CancelQuestTask">Cancel</button>
             <button type="button" class="btn btn-warning" @onclick="RestartQuestTasks">Restart</button>
         </CardFooter>
-    </CollapsableCard>
+    </RazorGenericComponents.Cards.CollapsableCard>
 </EditForm>
 
 @code {

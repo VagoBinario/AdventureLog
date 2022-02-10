@@ -6,15 +6,15 @@
 
 <button @onclick="Add">Add task</button>
 
-<CollectionLayout Collection=@Collection TItem=TItem>
+<RazorGenericComponents.CollectionLayout Collection=@Collection TItem=TItem>
     <ItemInCollection> 
-        <FormBase TItem=TItem Model=@context OnModelDelete="(x) => OnDelete(x)" >
+        <DBFormBase TItem=TItem Model=@context OnModelDelete="(x) => OnDelete(x)" >
             <FormInputData>
                 @ModelEditTemplate(@context)
             </FormInputData>
-        </FormBase>
+        </DBFormBase>
     </ItemInCollection>
-</CollectionLayout>
+</RazorGenericComponents.CollectionLayout>
 
 @code{
     [Parameter] public ICollection<TItem> Collection { get; set; }

@@ -6,7 +6,7 @@
 @if (showTable)
 {
     <button type="button" class="btn btn-primary" onclick="@(() => NewItem())">New</button>
-    <TableBase TItem=TItem Items=rows>
+    <RazorGenericComponents.TableBase TItem=TItem Items=rows>
         <TableHeader>
             @foreach (string header in headers)
             {
@@ -28,17 +28,17 @@
                 }
             </td>
         </RowTemplate>
-    </TableBase>
+    </RazorGenericComponents.TableBase>
 }
 else
 {
-    <FormBase TItem=TItem Model="selectedItem" OnFormSubmited=@((x) => OnSubmit(x)) OnModelCancel=@((x) => OnCancel(x))>
+    <DBFormBase TItem=TItem Model="selectedItem" OnFormSubmited=@((x) => OnSubmit(x)) OnModelCancel=@((x) => OnCancel(x))>
         <FormInputData>
             @if(FormInputData != null){
                 @FormInputData(selectedItem)
             }
         </FormInputData>
-    </FormBase>
+    </DBFormBase>
 }
 
 @code {
